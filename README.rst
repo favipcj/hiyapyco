@@ -168,6 +168,19 @@ kwargs
    'NOTSET' (default: ``logging.ERROR`` if
    ``failonmissingfiles = True``, else ``logging.WARN``)
 
+- ``skip_invalid_templates``: boolean: whether skip invalid jinja2 templates
+  when ``interpolate`` flag is ``True``.  (default: ``False``).
+  Sometimes strings like the syntax used by Docker are considered
+  invalid, so this flag allows to skip errors raised as Invalid templates.
+  i.e.
+
+::
+
+      services:
+        service_name:
+          environment:
+            taskid: task-{{.Task.Id}}
+
 interpolation
 ~~~~~~~~~~~~~
 

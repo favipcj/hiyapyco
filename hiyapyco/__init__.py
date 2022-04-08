@@ -89,6 +89,8 @@ class HiYaPyCo:
           * loglevel: one of  the valid levels from the logging module
           * failonmissingfiles: boolean (default: True)
           * loglevelmissingfiles
+          * skip_invalid_templates: boolean (default: False)
+
 
         Returns a representation of the merged and (if requested) interpolated config.
         Will mostly be a OrderedDict (dict if usedefaultyamlloader), but can be of any other type,
@@ -176,6 +178,8 @@ class HiYaPyCo:
         if 'encoding' in kwargs:
             self.encoding = kwargs['encoding']
             del kwargs['encoding']
+
+        self.skip_invalid_templates = kwargs.pop('skip_invalid_templates', False)
 
         if kwargs:
             raise HiYaPyCoInvocationException('undefined keywords: %s' % ' '.join(kwargs.keys()))
@@ -289,7 +293,9 @@ class HiYaPyCo:
             si = jinja2env.from_string(s).render(self._data)
         except TemplateError as e:
             # FIXME: this seems to be broken for unicode str?
-            raise HiYaPyCoImplementationException('error interpolating string "%s" : %s' % (s, e,))
+            if not self.skip_invalid_templates:
+                raise HiYaPyCoImplementationException('error interpolating string "%s" : %s' % (s, e,))
+            si = s
         if not s == si:
             if self.castinterpolated:
                 if not re.match( r'^\d+\.*\d*$', si):
@@ -516,6 +522,7 @@ def load(*args, **kwargs):
       * encoding: (default: 'utf-8') encoding used to read yaml files
       * loglevel: one of  the valid levels from the logging module
       * failonmissingfiles: boolean (default: True)
+      * skip_invalid_templates: boolean (default: False)
       * loglevelmissingfiles
 
     Returns a representation of the merged and (if requested) interpolated config.
